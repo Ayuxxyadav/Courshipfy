@@ -1,0 +1,82 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+ TEACHER
+ STUDENT
+}
+
+enum Active {
+   YES
+    NO
+}
+
+model User {
+  id            String          @unique  @default(uuid())
+  email         String          @unique
+  password      String
+  name          String
+
+  role          Role           
+  course        Course[]            // teacher can create as many course he want
+  purchase      Purchase[]          // Student can purchase as many as he want
+
+
+  createdAt      DateTime          @default(now())
+}
+
+
+model Course {
+id             String          @unique  @default(uuid())
+title          String
+description    String?
+price            Int
+active         Active          @default(NO)
+
+instructorId    String
+instructor      User           @relation(fields:[instructorId] , references:[id] )
+
+lesson         Lesson[]
+purchase       Purchase[]
+
+createdAt      DateTime       @default(now())
+updatedAt      DateTime        @updatedAt
+}
+
+
+model  Lesson  {
+
+id             String          @unique  @default(uuid())
+title          String
+content        String
+courseId       String          
+course         Course           @relation(fields:[courseId] , references:[id] )
+
+createdAt     DateTime          @default(now())
+
+}
+
+
+model Purchase {
+  id             String          @unique  @default(uuid())
+  userId         String
+  user           User             @relation(fields:[userId], references:[id])
+
+  courseId       String
+  course         Course           @relation(fields:[courseId], references:[id])
+
+  createdAt      DateTime          @default(now())
+}
+
+
